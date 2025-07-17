@@ -22,14 +22,15 @@
         <textarea name="content" id="" required></textarea>
         <button type="submit">Post Comment</button>
     </form>
-    <h3>Comments</h3>
-    <ul>
-        <% foundListing.comments.forEach((comment) => { %>
-            <li>
-                <%= comment.content %> - <%= comment.author.username %> 
-            </li>
-        <% }) %>
-    </ul>
+  <h3 class="text-center">Comments</h3>
+  <ul class="list-group">
+    <% foundListing.comments.forEach((comment) => { %>
+      <li class="list-group-item">
+        <%= comment.content %> — <em><%= comment.author.username %></em>
+      </li>
+    <% }) %>
+  </ul>
+</div>
 
 
 </body>

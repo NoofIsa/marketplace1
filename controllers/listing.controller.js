@@ -32,7 +32,8 @@ router.get('/', async (req, res) => {
 // VIEW A SINGLE LISTING (SHOW PAGE)
 router.get('/:listingId', async (req, res) => {
     
-    const foundListing = await Listing.findById(req.params.listingId).populate('seller')
+    const foundListing = await Listing.findById(req.params.listingId).populate('comments.author')
+        console.log(foundListing)
     console.log(foundListing)
     res.render('listings/show.ejs', { foundListing: foundListing })
 })
