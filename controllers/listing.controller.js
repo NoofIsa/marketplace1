@@ -2,6 +2,7 @@ const express = require('express')
 const router = express.Router()
 const Listing = require('../models/listing')
 const isSignedIn = require('../middleware/is-signed-in')
+const session = require('express-session')
 
 
 // VIEW NEW LISTING FORM
@@ -30,6 +31,7 @@ router.get('/', async (req, res) => {
 
 // VIEW A SINGLE LISTING (SHOW PAGE)
 router.get('/:listingId', async (req, res) => {
+    
     const foundListing = await Listing.findById(req.params.listingId).populate('seller')
     console.log(foundListing)
     res.render('listings/show.ejs', { foundListing: foundListing })
@@ -38,8 +40,12 @@ router.get('/:listingId', async (req, res) => {
 
 
 // DELETE LISTING FROM DATABASE
-router.delete('/:listingId', async (req, res) => {
+//router.delete('/:listingId', isSignedIn, async (req, res) => {
+router.delete('/:listingId', isSignedIn, async (req, res) => {
+
+
     // find the listing
+
     const foundListing = await Listing.findById(req.params.listingId).populate('seller')
     // check if the logged in user owns the listing
     if (foundListing.seller._id.equals(req.session.user._id)) {
@@ -51,7 +57,7 @@ router.delete('/:listingId', async (req, res) => {
 })
 
 // RENDER THE EDIT FORM VIEW
-router.get('/:listingId/edit', async (req, res) => {
+router.get('/:listingId/edit', isSignedIn, async (req, res) => {
     const foundListing = await Listing.findById(req.params.listingId).populate('seller')
 
     if (foundListing.seller._id.equals(req.session.user._id)) {
@@ -62,14 +68,25 @@ router.get('/:listingId/edit', async (req, res) => {
 
 })
 
-router.put('/:listingId', async (req, res) => {
-    const foundListing = await Listing.findById(req.params.listingId).populate('seller')
+router.put('/:listingId', isSignedIn, async (req, res) => {
+    const foundListing = await Listing.findById(req.params.listingId).populate('seller').populate('comments.author')
     if (foundListing.seller._id.equals(req.session.user._id)) {
         await Listing.findByIdAndUpdate(req.params.listingId, req.body, { new: true })
         return res.redirect(`/listings/${req.params.listingId}`)
     } 
         return res.send('Not authorized')
    
+})
+
+//POST COMMENT FROM THE DATABASE 
+// POST COMMENT FORM TO THE DATABASE
+router.post('/:listingId/comments', isSignedIn, async (req, res) => {
+    const foundListing = await Listing.findById(req.params.listingId)
+    req.body.author = req.session.user._id
+    console.log(req.body)
+    foundListing.comments.push(req.body)
+    await foundListing.save()
+    res.redirect(`/listings/${req.params.listingId}`)
 })
 
 module.exports = router
