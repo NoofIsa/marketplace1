@@ -19,6 +19,10 @@
         <form action="/listings/<%= foundListing._id %>?_method=DELETE" method="POST">
             <button type="submit">Delete</button>
         </form>
+        <a href="/listings/<%= foundListing._id %>/edit">
+                <button id="edit-button">Edit</button>
+            </a>
+        </div>
     <% } %>
 </body>
 </html>
